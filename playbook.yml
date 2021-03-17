@@ -1,0 +1,35 @@
+---
+- hosts: all
+  collections:
+    - nginxinc.nginx_core
+  roles:
+    - role: nginx
+    - role: nginx_config
+      vars:
+        ansible_become: yes
+        nginx_config_http_template_enable: true
+        nginx_config_http_template:
+          app:
+            template_file: http/default.conf.j2
+            conf_file_name: default.conf
+            conf_file_location: /etc/nginx/conf.d/
+            servers:
+              server1:
+                listen:
+                  listen_localhost:
+                    port: 80
+                server_name: localhost
+                access_log:
+                  - name: main
+                    location: /var/log/nginx/access.log
+                web_server:
+                  locations:
+                    main_site:
+                      location: /
+                      html_file_location: /usr/share/nginx/html/estore
+                      html_file_name: index.html
+  tasks:                    
+  - name: Set demo content
+    ansible.builtin.git:
+      repo: https://github.com/technext/estore.git
+      dest: /usr/share/nginx/html/estore
